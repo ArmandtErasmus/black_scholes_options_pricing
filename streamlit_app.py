@@ -36,54 +36,55 @@ def heatmap(X, Y, call_Z, put_Z, call_title, put_title, call_label, put_label, x
 # Streamlit Dashboard Configuration
 st.set_page_config(
     layout='wide',
-    page_title='Black-Scholes Option Pricing Model')
+    page_title='A Visual Framework for Pricing and Sensitivity Analysis of European Options',
+    page_icon="📊")
 
 # Custom CSS to inject into Streamlit
 st.markdown("""
 <style>
-/* Adjust the size and alignment of the CALL and PUT value containers */
-.metric-container {
+.card-left {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px; /* Adjust the padding to control height */
-    width: auto; /* Auto width for responsiveness, or set a fixed width if necessary */
-    margin: 0 auto; /* Center the container */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 1px 1px 6px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
 }
-
-/* Custom classes for CALL and PUT values */
-.metric-call {
-    background-color: #8cd47e; /* Light green background */
-    color: white; /* Black font color */
-    margin-right: 10px; /* Spacing between CALL and PUT */
-    border-radius: 10px; /* Rounded corners */
+.bar-green {
+    width: 8px;
+    background-color: #28a745;
 }
-
-.metric-put {
-    background-color: #d94b58; /* Light red background */
-    color: white; /* Black font color */
-    border-radius: 10px; /* Rounded corners */
+.bar-red {
+    width: 8px;
+    background-color: #dc3545;
 }
-
-/* Style for the value text */
-.metric-value {
-    font-size: 1.5rem; /* Adjust font size */
+.content {
+    padding: 15px;
+    background-color: #ffffff;
+    width: 100%;
+}
+.label {
+    font-size: 16px;
     font-weight: bold;
-    margin: 0; /* Remove default margins */
+    margin-bottom: 4px;
 }
-
-/* Style for the label text */
-.metric-label {
-    font-size: 1rem; /* Adjust font size */
-    margin-bottom: 4px; /* Spacing between label and value */
+.label-green {
+    color: #28a745;
 }
-
+.label-red {
+    color: #dc3545;
+}
+.price {
+    font-size: 28px;
+    font-weight: 700;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # Streamlit Dashboard Sidebar Parameters
 with st.sidebar:
     st.title('Black-Scholes Model Parameters')
+
     spot_price = st.number_input('Asset Spot Price', value=100.00, help='Current price of the call/put option: e.g. 100')
     strike_price = st.number_input('Asset Strike Price', value=100.00, help='Price at which the call/put option can be exercised: e.g. 100')
     maturity_time = st.number_input('Time to Maturity (years)', value=1, help="Remaining time (in years) until the option's expiration date: e.g. 1")
@@ -94,13 +95,60 @@ with st.sidebar:
     st.markdown("---")
 
     st.write("Heatmap Parameters")
-    spot_price_min, spot_price_max = st.slider("Spot Price Range", 0.0, 1000.0, (0.0, 1000.0))
-    volatility_min, volatility_max = st.slider("Volatility Range", 0.0, 1.0, (0.0, 1.0))
+    spot_price_min, spot_price_max = st.slider("Spot Price Range", 0.01, 1000.0, (0.01, 1000.0))
+    volatility_min, volatility_max = st.slider("Volatility Range", 0.01, 1.0, (0.01, 1.0))
+    maturity_time_min, maturity_time_max = st.slider("Time to Maturity Range", 0.01, 10.0, (0.01, 10.0))
+    rf_rate_min, rf_rate_max = st.slider("Risk-Free Interest Rate Range", 0.01, 1.0, (0.01, 1.0))
 
 
 
 # Streamlit Dashboard
-st.title("Black-Scholes Options Pricing Model")
+st.title("A Visual Framework for Pricing and Sensitivity Analysis of European Options")
+
+st.markdown(
+                r"""
+                The Black-Scholes model is a foundational mathematical framework for pricing financial derivatives, particularly European-style options.
+                the model provides a theoretical estimate of the price of options under a set of idealized assumptions. While widely influential, the model is primarily used as a conceptual benchmark or as a foundation for more sophisticated pricing models, due to its simplifying assumptions. 
+                
+                The model assumes the existence of a financial market consisting of at least two tradable assets:
+                - A risky asset (typically a stock), whose price evolves over time, and
+                - A risk-free asset (often referred to as a money market account), which accrues interest at a constant, risk-free rate.
+
+                Key assumptions regarding the underlying asset include:
+                - The risk-free interest rate is constant over time.
+                - The logarithmic returns of the stock follow a geometric Brownian motion, implying continuous paths and normally distributed returns over infinitesimal intervals.
+                - The stock does not pay dividends during the life of the option.
+
+                Assumptions about the market environment include:
+                - No arbitrage opportunities exist; prices adjust to prevent riskless profit.
+                - Continuous trading is possible, and agents can borrow or lend unlimited amounts at the risk-free rate.
+                - Perfect liquidity exists, allowing for the purchase or sale of any quantity of the asset.
+                - The market is frictionless, with no transaction costs, taxes, or bid-ask spreads.
+                
+                The value of a call option for a non-dividend-paying underlying stock is:
+                $$
+                C(S_{t}, t) = N(d_{1})S_{t} - N(d_{2})K\exp{[-r(T-t)]}
+                $$
+                where
+                $$
+                d_{1} = \frac{1}{\sigma\sqrt{T-t}}\Bigg(\ln{\Bigg(\frac{S_{t}}{K}\Bigg) + \Bigg(r+\frac{\sigma^{2}}{2}\Bigg)(T-t)}\Bigg)
+                $$
+                $$
+                d_{2} = d_{1} - \sigma\sqrt{T-t}
+                $$
+                The price of a corresponding put option is:
+                $$
+                P(S_{t}, t) = N(-d_{2})K\exp{[-r(T-t)]} - N(-d_{1})S_{t}
+                $$
+                In this model, $\sigma$ is the volatility of the asset, $S_{t}$ is the asset spot price, $K$ is the asset strike price, $r$ is the risk-free interest rate, $N(x)$ denotes the standard normal cumulative distribution and $(T-t)$ denotes the time until maturity.
+                """
+            )
+
+# Add Small Break Between Upper and Lower Parts
+st.markdown("---")
+
+# Model Parameters Title
+st.title("Model Parameters and Option Call/Put Valuation:")
 
 # Display Model Paramters
 model_parameters = {
@@ -115,33 +163,36 @@ model_parameters = {
 parameters = pd.DataFrame(model_parameters)
 st.dataframe(parameters, hide_index=True)
 
+# Create Black-Scholes Model Object
+model = bsm.BSM(spot_price, strike_price, rf_rate, maturity_time, volatility)
+
 # Calculate Call and Put Prices
-call_price = bsm.BSM(spot_price, strike_price, rf_rate, maturity_time, volatility).call_price()
-put_price = bsm.BSM(spot_price, strike_price, rf_rate, maturity_time, volatility).put_price()
+call_price = model.call_price()
+put_price = model.put_price()
 
 # Display Call and Put Values in colored tables
-col1, col2 = st.columns([1,1], gap="small")
+col1, col2 = st.columns(2)
 
 with col1:
-    # Using the custom class for CALL value
     st.markdown(f"""
-        <div class="metric-container metric-call">
-            <div>
-                <div class="metric-label">CALL Value</div>
-                <div class="metric-value">${call_price:.2f}</div>
-            </div>
+    <div class="card-left">
+        <div class="bar-green"></div>
+        <div class="content">
+            <div class="label label-green">📈 CALL Option</div>
+            <div class="price">${call_price:.2f}</div>
         </div>
+    </div>
     """, unsafe_allow_html=True)
 
 with col2:
-    # Using the custom class for PUT value
     st.markdown(f"""
-        <div class="metric-container metric-put">
-            <div>
-                <div class="metric-label">PUT Value</div>
-                <div class="metric-value">${put_price:.2f}</div>
-            </div>
+    <div class="card-left">
+        <div class="bar-red"></div>
+        <div class="content">
+            <div class="label label-red">📉 PUT Option</div>
+            <div class="price">${put_price:.2f}</div>
         </div>
+    </div>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
@@ -149,17 +200,107 @@ st.title("Modeling European Option Sensitivities in the Black-Scholes Framework"
 # -----
 # Delta:
 st.subheader("Δ (Delta): Sensitivity of the Option Price to Underlying Asset Movements")
-st.write("Delta measures how much an option's price is expected to change for a small change in the underlying asset's price.")
+st.write("Delta quantifies the rate of change in an option's price with respect to changes in the underlying asset's price. It represents the first-order derivative of the option value and is a key measure of directional exposure.")
 st.markdown("---")
+
 # Create Meshgrid Object for Spot Prices & Volatilities
 X, Y = meshgrid(spot_price_min, volatility_min, spot_price_max, volatility_max)
 
+# Create a Model for Delta Sensitivies
+delta_model = bsm.BSM(X, strike_price, rf_rate, maturity_time, Y)
+
 # Calculate Call & Put Deltas
-call_deltas = bsm.BSM(X, strike_price, rf_rate, maturity_time, Y).delta_call()
-put_deltas = bsm.BSM(X, strike_price, rf_rate, maturity_time, Y).delta_put()
+call_deltas = delta_model.delta_call()
+put_deltas = delta_model.delta_put()
 
 # Create Deltas Heatmap
 fig = heatmap(X, Y, call_deltas, put_deltas, "Call Option Delta Heatmap", "Put Option Delta Heatmap", "Call Delta", "Put Delta", "Spot Price", "Volatility")
 st.pyplot(fig)
 
+# Add Small Break Between Upper and Lower Parts
+st.markdown("---")
 # -----
+# Gamma:
+st.subheader("Γ (Gamma): Sensitivity of Delta to the Option Price")
+st.write("Gamma measures the rate of change of Delta with respect to the underlying asset's price. It reflects the curvature in the option's price profile and indicates how much the Delta will change as the underlying asset moves. High Gamma implies greater convexity and risk in Delta hedging.")
+st.markdown("---")
+
+# Create Meshgrid Object for Spot Prices & Volatilities
+X, Y = meshgrid(spot_price_min, maturity_time_min, spot_price_max, maturity_time_max)
+
+# Create a Model for Gammas Sensitivies
+gamma_model = bsm.BSM(X, strike_price, rf_rate, Y, volatility)
+
+# Calculate Call & Put Gammas
+call_gammas = gamma_model.gamma()
+put_gammas = gamma_model.gamma()
+
+# Create Gammas Heatmap
+fig = heatmap(X, Y, call_gammas, put_gammas, "Call Option Gamma Heatmap", "Put Option Gamma Heatmap", "Call Gamma", "Put Gamma", "Spot Price", "Time to Maturity (years)")
+st.pyplot(fig)
+
+# Add Small Break Between Upper and Lower Parts
+st.markdown("---")
+# -----
+# Theta:
+st.subheader("Θ (Theta): Sensitivity to Time Decay")
+st.write("Theta measures the rate at which an option’s value declines over time, holding other variables constant. It captures the impact of time decay and is typically negative for long options, reflecting the erosion of extrinsic value as expiration approaches.")
+st.markdown("---")
+
+# Create Meshgrid Object for Spot Prices & Vollities
+X, Y = meshgrid(spot_price_min, maturity_time_min, spot_price_max, maturity_time_max)
+
+# Create a Model for Theta Sensitivies
+theta_model = bsm.BSM(X, strike_price, rf_rate, Y, volatility)
+
+# Calculate Call & Put Thetas
+call_thetas = theta_model.theta_call()
+put_thetas = theta_model.theta_call()
+
+# Create Thetas Heatmap
+fig = heatmap(X, Y, call_thetas, put_thetas, "Call Option Theta Heatmap", "Put Option Theta Heatmap", "Call Theta", "Put Theta", "Spot Price", "Time to Maturity (years)")
+st.pyplot(fig)
+
+# Add Small Break Between Upper and Lower Parts
+st.markdown("---")
+# -----
+# Vega:
+st.subheader("ν (Vega): Sensitivity to Volatility")
+st.write("Vega represents the sensitivity of an option’s price to changes in the volatility of the underlying asset. A higher Vega implies that the option is more responsive to volatility shifts, which is particularly relevant for long-dated or at-the-money options.")
+st.markdown("---")
+
+# Create Meshgrid Object for Spot Prices & Volatilities
+X, Y = meshgrid(spot_price_min, volatility_min, spot_price_max, volatility_max)
+
+# Create a Model for Vega Sensitivies
+vega_model = bsm.BSM(X, strike_price, rf_rate, maturity_time, Y)
+
+# Calculate Call & Put Vega
+call_vegas = vega_model.theta_call()
+put_vegas = vega_model.theta_put()
+
+# Create Vegas Heatmap
+fig = heatmap(X, Y, call_vegas, put_vegas, "Call Option Vega Heatmap", "Put Option Vega Heatmap", "Call Vega", "Put Vega", "Spot Price", "Volatility")
+st.pyplot(fig)
+
+# Add Small Break Between Upper and Lower Parts
+st.markdown("---")
+# -----
+# rho:
+st.subheader("ρ (Rho): Sensitivity to Interest Rate Changes")
+st.write("Rho quantifies the sensitivity of the option's price to changes in the risk-free interest rate. It is most relevant for long-dated options and reflects how discounting and forward pricing influence option valuation.")
+st.markdown("---")
+
+# Create Meshgrid Object for Spot Prices & Volatilities
+X, Y = meshgrid(spot_price_min, rf_rate_min, spot_price_max, rf_rate_max)
+
+# Create a Model for Rho Sensitivies
+rho_model = bsm.BSM(X, strike_price, Y, maturity_time, volatility)
+
+# Calculate Call & Put Rho
+call_rhos = rho_model.rho_call()
+put_rhos = rho_model.rho_put()
+
+# Create Rho Heatmap
+fig = heatmap(X, Y, call_rhos, put_rhos, "Call Option Rho Heatmap", "Put Option Rho Heatmap", "Call Rho", "Put Rho", "Spot Price", "Risk-Free Interest Rate")
+st.pyplot(fig)
