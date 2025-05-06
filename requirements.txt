@@ -3,4 +3,3 @@ pandas
 numpy
 matplotlib
 scipy
-black_scholes_model.py
